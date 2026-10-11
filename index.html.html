@@ -1,0 +1,705 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Color Mixing Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --linen:#E3DECF;
+    --linen-2:#EDE8DB;
+    --panel:#F6F2E7;
+    --ink:#2A241E;
+    --ink-soft:#5B5347;
+    --rule:#C3B79C;
+    --rule-soft:#D8CFB6;
+    --accent:#1F3350;
+    --accent-soft:#405878;
+    --good:#2E5C3E;
+    --warn:#8C3B2A;
+    --radius:2px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--linen);
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(42,36,30,0.055) 1px, transparent 1.6px);
+    background-size: 6px 6px;
+    color:var(--ink);
+    font-family:'Work Sans', sans-serif;
+    min-height:100vh;
+    padding:28px 18px 60px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important; animation:none !important;}
+  }
+
+  .wrap{max-width:1080px; margin:0 auto;}
+
+  header.top{
+    display:flex; align-items:baseline; justify-content:space-between;
+    gap:16px; flex-wrap:wrap;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:14px; margin-bottom:22px;
+  }
+  header.top .brand{display:flex; align-items:baseline; gap:12px;}
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size:clamp(28px,4vw,40px);
+    letter-spacing:-0.01em;
+    margin:0;
+  }
+  header.top .tagline{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--ink-soft);
+    letter-spacing:0.02em;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap:22px;
+    align-items:start;
+  }
+  @media (max-width:820px){
+    .grid{grid-template-columns:1fr;}
+  }
+
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--rule);
+    border-radius:var(--radius);
+  }
+
+  /* ---- left: sampler ---- */
+  .sampler-head{
+    padding:14px 16px 10px;
+    border-bottom:1px solid var(--rule-soft);
+    display:flex; align-items:center; justify-content:space-between;
+    flex-wrap:wrap; gap:8px;
+  }
+  .sampler-head h2{
+    font-family:'Fraunces', serif;
+    font-size:16px; font-weight:600; margin:0;
+    text-transform:uppercase; letter-spacing:0.06em;
+  }
+  .file-btn-wrap{position:relative; display:inline-block; margin-left:6px;}
+  .file-btn-wrap:first-of-type{margin-left:0;}
+  .file-btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px; letter-spacing:0.02em;
+    background:var(--accent); color:var(--linen-2);
+    border:none; padding:7px 12px; border-radius:2px;
+    display:inline-block; pointer-events:none;
+  }
+  .file-btn-wrap:hover .file-btn{background:var(--accent-soft);}
+  .file-input-overlay:focus-visible ~ .file-btn, .file-input-overlay:focus-visible{
+    outline:2px solid var(--accent); outline-offset:2px;
+  }
+  .file-input-overlay{
+    position:absolute; inset:0; width:100%; height:100%;
+    opacity:0; cursor:pointer; margin:0; padding:0; border:0;
+  }
+
+  .drop{
+    margin:14px;
+    min-height:340px;
+    border:1.5px dashed var(--rule);
+    border-radius:2px;
+    display:flex; align-items:center; justify-content:center;
+    position:relative;
+    background:repeating-linear-gradient(135deg, rgba(42,36,30,0.02) 0 10px, transparent 10px 20px);
+    cursor:crosshair;
+    overflow:hidden;
+  }
+  .drop.has-image{border-style:solid;}
+  .drop-empty-wrap{
+    position:relative; width:100%; height:100%; min-height:340px;
+  }
+  .drop-empty{
+    text-align:center; color:var(--ink-soft);
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px;
+    padding:20px; line-height:1.7;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    width:100%; height:100%; min-height:340px; cursor:pointer;
+    pointer-events:none;
+  }
+  .drop-empty strong{color:var(--ink); font-family:'Work Sans'; font-size:14px; display:block; margin-bottom:4px;}
+  canvas#img{
+    max-width:100%; display:block; touch-action:none;
+  }
+  .crosshair{
+    position:absolute; width:22px; height:22px; margin:-11px 0 0 -11px;
+    border-radius:50%; border:2px solid #fff;
+    box-shadow:0 0 0 1.5px var(--ink), 0 1px 4px rgba(0,0,0,0.4);
+    pointer-events:none; display:none;
+  }
+
+  .palette-toggle{
+    padding:12px 16px 16px;
+    border-top:1px solid var(--rule-soft);
+  }
+  .palette-toggle h3{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px; text-transform:uppercase; letter-spacing:0.06em;
+    color:var(--ink-soft); margin:0 0 8px;
+    font-weight:500;
+  }
+  .chips{display:flex; flex-wrap:wrap; gap:6px;}
+  .chip{
+    display:flex; align-items:center; gap:6px;
+    border:1px solid var(--rule); background:var(--linen-2);
+    border-radius:20px; padding:4px 10px 4px 4px;
+    font-family:'IBM Plex Mono', monospace; font-size:11px;
+    cursor:pointer; user-select:none; color:var(--ink);
+  }
+  .chip:hover{border-color:var(--ink-soft);}
+  .chip .x{color:var(--ink-soft); font-size:13px; line-height:1; margin-left:2px;}
+  .chip .swab{width:16px; height:16px; border-radius:50%; border:1px solid rgba(0,0,0,0.25); flex:none;}
+
+  .golden-add{
+    margin-top:14px; padding-top:12px; border-top:1px solid var(--rule-soft);
+  }
+  .golden-add label{
+    display:block; font-family:'IBM Plex Mono', monospace; font-size:11px;
+    text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-soft);
+    margin-bottom:6px;
+  }
+  .golden-add select{
+    width:100%; font-family:'Work Sans', sans-serif; font-size:13px;
+    color:var(--ink); background:var(--linen-2);
+    border:1px solid var(--rule); border-radius:2px;
+    padding:8px 10px; cursor:pointer;
+  }
+
+  /* ---- right: ticket ---- */
+  .ticket{
+    position:relative;
+    padding-top:22px;
+  }
+  .ticket::before{
+    content:"";
+    position:absolute; top:11px; left:0; right:0; height:0;
+    border-top:1.5px dashed var(--rule);
+    background-image: radial-gradient(circle, var(--linen) 3px, transparent 3.2px);
+    background-size:16px 16px;
+    background-position:0 -3px;
+  }
+  .ticket-head{
+    padding:0 18px 14px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .ticket-head h2{
+    font-family:'Fraunces', serif;
+    font-size:16px; font-weight:600; margin:0;
+    text-transform:uppercase; letter-spacing:0.06em;
+  }
+  .ticket-head span{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft);
+  }
+
+  .swatch-pair{
+    display:flex; padding:0 18px 16px; gap:0;
+    border-bottom:1px solid var(--rule-soft);
+  }
+  .swatch{
+    flex:1; text-align:center;
+  }
+  .swatch .disc{
+    width:76px; height:76px; border-radius:50%;
+    margin:0 auto 8px; border:1px solid rgba(0,0,0,0.15);
+    box-shadow: inset 0 0 0 4px rgba(255,255,255,0.35);
+  }
+  .swatch label{
+    font-family:'IBM Plex Mono', monospace; font-size:10.5px;
+    text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-soft);
+  }
+  .swatch .hex{font-family:'IBM Plex Mono', monospace; font-size:12px; margin-top:2px;}
+  .match-note{
+    align-self:center; text-align:center; flex:0 0 90px;
+    font-family:'IBM Plex Mono', monospace; font-size:11px;
+  }
+  .match-note .pct{font-size:20px; display:block; font-weight:500;}
+
+  .recipe-list{padding:14px 18px 6px;}
+  .recipe-empty{
+    padding:30px 18px; text-align:center; color:var(--ink-soft);
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; line-height:1.7;
+  }
+  .row{
+    margin-bottom:12px;
+  }
+  .row-label{
+    display:flex; justify-content:space-between; align-items:baseline;
+    font-size:13.5px; margin-bottom:4px;
+  }
+  .row-label .name{font-weight:500;}
+  .row-label .pct{font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:var(--ink-soft);}
+  .bar-track{
+    height:14px; background:var(--linen-2); border:1px solid var(--rule-soft);
+    border-radius:1px; overflow:hidden;
+  }
+  .bar-fill{height:100%;}
+
+  .parts-line{
+    margin:14px 18px 4px; padding-top:12px; border-top:1px solid var(--rule-soft);
+    font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-soft);
+  }
+  .parts-line b{color:var(--ink); font-weight:500;}
+
+  .ticket-foot{
+    margin-top:16px; padding:12px 18px 18px;
+    font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--ink-soft);
+    border-top:1.5px dashed var(--rule);
+  }
+
+  .support{padding:4px 18px 20px; display:flex; justify-content:flex-start;}
+  .manual-hex{
+    padding:12px 16px 16px; border-top:1px solid var(--rule-soft);
+    display:flex; align-items:center; gap:8px;
+  }
+  .manual-hex label{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft);}
+  .manual-hex input[type=color]{
+    width:34px; height:28px; border:1px solid var(--rule); padding:0; background:none; cursor:pointer;
+  }
+  .manual-hex input[type=text]{
+    font-family:'IBM Plex Mono', monospace; font-size:12px;
+    border:1px solid var(--rule); border-radius:2px; padding:5px 7px; width:90px;
+    background:var(--linen-2); color:var(--ink);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Color Mixing Guide</h1>
+    </div>
+    <div class="tagline">click a color in an image → get a mixing ratio</div>
+  </header>
+
+  <div class="grid">
+    <!-- LEFT: sampler -->
+    <div class="panel">
+      <div class="sampler-head">
+        <h2>Source image</h2>
+        <div>
+          <span class="file-btn-wrap">
+            <span class="file-btn">Upload image</span>
+            <input type="file" id="fileInput" accept="image/*" class="file-input-overlay">
+          </span>
+          </div>
+      </div>
+      <div class="drop" id="drop">
+        <div class="drop-empty-wrap" id="dropEmptyWrap">
+          <div class="drop-empty" id="dropEmpty">
+            <strong>Tap here to choose an image</strong>
+            or drop one in on desktop.<br>
+            Once it's in, tap anywhere on it to sample a color.
+          </div>
+          <input type="file" id="fileInputDrop" accept="image/*" class="file-input-overlay">
+        </div>
+        <canvas id="img" style="display:none;"></canvas>
+        <div class="crosshair" id="crosshair"></div>
+      </div>
+
+      <div class="manual-hex">
+        <label for="hexPick">or pick a color directly</label>
+        <input type="color" id="hexPick" value="#7d8f6b">
+        <input type="text" id="hexText" value="#7D8F6B">
+      </div>
+
+      <div class="palette-toggle">
+        <h3>Colors on hand</h3>
+        <div class="chips" id="chips"></div>
+
+        <div class="golden-add">
+          <label for="goldenSelect">Add colors</label>
+          <select id="goldenSelect">
+            <option value="">+ choose a color…</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: ticket -->
+    <div class="panel ticket">
+      <div class="ticket-head">
+        <h2>Recipe ticket</h2>
+        <span id="ticketMeta">no color sampled</span>
+      </div>
+
+      <div class="swatch-pair" id="swatchPair" style="display:none;">
+        <div class="swatch">
+          <div class="disc" id="targetDisc"></div>
+          <label>Target</label>
+          <div class="hex" id="targetHex">—</div>
+        </div>
+        <div class="match-note">
+          <span class="pct" id="matchPct">—</span>
+          match
+        </div>
+        <div class="swatch">
+          <div class="disc" id="mixDisc"></div>
+          <label>Mixed</label>
+          <div class="hex" id="mixHex">—</div>
+        </div>
+      </div>
+
+      <div class="recipe-list" id="recipeList">
+        <div class="recipe-empty">Sample a color to see its mix here.</div>
+      </div>
+
+      <div class="parts-line" id="partsLine" style="display:none;"></div>
+
+      <div class="ticket-foot">
+        Ratios are estimated from pigment color alone — actual tinting strength varies by brand and opacity, so treat this as a starting point and adjust by eye.
+      </div>
+
+      <div class="support">
+        <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="Todd_Johnson" data-color="#FFDD00" data-emoji="" data-font="Cookie" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff"></script>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- palette ---------- */
+const PALETTE = [
+  { name:"Titanium White",                    hex:"#F5F3EC" },
+  { name:"Carbon Black",                      hex:"#1A1817" },
+  { name:"Hansa Yellow Medium",               hex:"#F8C51D" },
+  { name:"Yellow Ochre",                      hex:"#C6923C" },
+  { name:"Pyrrole Red",                       hex:"#C1121C" },
+  { name:"Quinacridone Magenta",              hex:"#93195A" },
+  { name:"Ultramarine Blue",                  hex:"#1F2E6B" },
+  { name:"Phthalo Blue (Green Shade)",        hex:"#0B3350" },
+  { name:"Phthalo Green (Blue Shade)",        hex:"#0A5C42" },
+  { name:"Burnt Sienna",                      hex:"#8A4227" },
+  { name:"Burnt Umber",                       hex:"#4A3524" },
+];
+
+let active = new Set(PALETTE.map((_,i)=>i));
+
+const chipsEl = document.getElementById('chips');
+
+function addPaintChip(i){
+  const p = PALETTE[i];
+  p.removed = false;
+  const chip = document.createElement('button');
+  chip.type = 'button';
+  chip.className = 'chip';
+  chip.title = 'Remove ' + p.name;
+  chip.innerHTML = `<span class="swab" style="background:${p.hex}"></span><span>${p.name}</span><span class="x" aria-hidden="true">×</span>`;
+  chip.addEventListener('click', ()=>{
+    active.delete(i);
+    p.removed = true;
+    chip.remove();
+    syncDropdown();
+    if(currentTarget) render(currentTarget);
+  });
+  chipsEl.appendChild(chip);
+}
+
+PALETTE.forEach((p,i)=> addPaintChip(i));
+
+/* ---------- Golden Heavy Body Acrylics reference colors ----------
+   Names match real GOLDEN Heavy Body Acrylics products; hex values are
+   approximate on-screen representations, not manufacturer swatch data.
+   Fluorescents, iridescents and interference colors are left out since
+   they don't behave like normal mixing pigments. */
+const GOLDEN_COLORS = [
+  { name:"Titanium White",                    hex:"#F5F3EC" },
+  { name:"Zinc White",                        hex:"#F0EDE3" },
+  { name:"Mars Black",                        hex:"#201D1B" },
+  { name:"Carbon Black",                      hex:"#1A1817" },
+  { name:"Ivory Black",                       hex:"#262321" },
+  { name:"Payne's Grey",                      hex:"#333F4A" },
+  { name:"Neutral Grey N5",                   hex:"#8B8A86" },
+  { name:"Hansa Yellow Light",                hex:"#FCE23A" },
+  { name:"Hansa Yellow Medium",               hex:"#F8C51D" },
+  { name:"Hansa Yellow Opaque",               hex:"#F6D24E" },
+  { name:"Diarylide Yellow",                  hex:"#F5B419" },
+  { name:"Benzimidazolone Yellow Medium",     hex:"#F6B92E" },
+  { name:"Cadmium Yellow Light",              hex:"#FBD52E" },
+  { name:"Cadmium Yellow Medium",             hex:"#F9C22E" },
+  { name:"Cadmium Yellow Primrose",           hex:"#FCE74A" },
+  { name:"Cadmium Orange",                    hex:"#F0791E" },
+  { name:"Yellow Ochre",                      hex:"#C6923C" },
+  { name:"Yellow Oxide",                      hex:"#C8963E" },
+  { name:"Raw Sienna",                        hex:"#9C6B2E" },
+  { name:"Naples Yellow Hue",                 hex:"#E9C879" },
+  { name:"Benzimidazolone Orange",            hex:"#EE7D1F" },
+  { name:"Pyrrole Orange",                    hex:"#E9591A" },
+  { name:"Naphthol Red Light",                hex:"#E13A2E" },
+  { name:"Pyrrole Red",                       hex:"#C1121C" },
+  { name:"Pyrrole Red Light",                 hex:"#D2291E" },
+  { name:"Cadmium Red Light",                 hex:"#E23327" },
+  { name:"Cadmium Red Medium",                hex:"#D0191F" },
+  { name:"Cadmium Red Dark",                  hex:"#A81622" },
+  { name:"Quinacridone Red",                  hex:"#8A1A2E" },
+  { name:"Quinacridone Crimson",              hex:"#7A1734" },
+  { name:"Quinacridone Magenta",              hex:"#93195A" },
+  { name:"Permanent Alizarin Crimson",        hex:"#611A2A" },
+  { name:"Light Magenta",                     hex:"#C24E82" },
+  { name:"Medium Magenta",                    hex:"#9E1958" },
+  { name:"Dioxazine Purple",                  hex:"#3A1E4A" },
+  { name:"Cobalt Violet Hue",                 hex:"#7A4F9A" },
+  { name:"Ultramarine Blue",                  hex:"#1F2E6B" },
+  { name:"Light Ultramarine Blue",            hex:"#4A5FA0" },
+  { name:"Anthraquinone Blue",                hex:"#1B2A55" },
+  { name:"Cobalt Blue",                       hex:"#1B4C8C" },
+  { name:"Cerulean Blue Chromium",            hex:"#1D77A3" },
+  { name:"Phthalo Blue (Green Shade)",        hex:"#0B3350" },
+  { name:"Phthalo Blue (Red Shade)",          hex:"#14264F" },
+  { name:"Cobalt Teal",                       hex:"#0E7C86" },
+  { name:"Turquoise (Phthalo)",               hex:"#0B7A80" },
+  { name:"Phthalo Green (Blue Shade)",        hex:"#0A5C42" },
+  { name:"Phthalo Green (Yellow Shade)",      hex:"#17724B" },
+  { name:"Permanent Green Light",             hex:"#4F9A3E" },
+  { name:"Sap Green",                         hex:"#5C7A34" },
+  { name:"Hooker's Green Hue",                hex:"#2C5C3F" },
+  { name:"Green Gold",                        hex:"#8CA023" },
+  { name:"Chromium Oxide Green",              hex:"#5C7A55" },
+  { name:"Raw Umber",                         hex:"#5C4A34" },
+  { name:"Burnt Umber",                       hex:"#4A3524" },
+  { name:"Burnt Sienna",                      hex:"#8A4227" },
+  { name:"Red Oxide",                         hex:"#8E3A2B" },
+  { name:"Transparent Red Iron Oxide",        hex:"#9A4A2A" },
+];
+
+const goldenSelect = document.getElementById('goldenSelect');
+GOLDEN_COLORS.forEach((c,i)=>{
+  const opt = document.createElement('option');
+  opt.value = i;
+  opt.textContent = c.name;
+  goldenSelect.appendChild(opt);
+});
+
+function syncDropdown(){
+  GOLDEN_COLORS.forEach((c,i)=>{
+    const opt = goldenSelect.querySelector(`option[value="${i}"]`);
+    if(opt) opt.disabled = PALETTE.some(p=> p.name === c.name && !p.removed);
+  });
+}
+syncDropdown();
+
+goldenSelect.addEventListener('change', ()=>{
+  if(goldenSelect.value === "") return;
+  const c = GOLDEN_COLORS[Number(goldenSelect.value)];
+  let idx = PALETTE.findIndex(p=> p.name === c.name);
+  if(idx === -1){
+    PALETTE.push({ name:c.name, hex:c.hex });
+    idx = PALETTE.length - 1;
+  }
+  if(!active.has(idx)){
+    active.add(idx);
+    addPaintChip(idx);
+  }
+  syncDropdown();
+  goldenSelect.value = "";
+  if(currentTarget) render(currentTarget);
+});
+
+/* ---------- color helpers ---------- */
+function hexToRgb(hex){
+  hex = hex.replace('#','');
+  if(hex.length===3) hex = hex.split('').map(c=>c+c).join('');
+  const num = parseInt(hex,16);
+  return [(num>>16)&255,(num>>8)&255,num&255];
+}
+function rgbToHex(rgb){
+  return '#'+rgb.map(v=>{
+    v = Math.max(0,Math.min(255,Math.round(v)));
+    return v.toString(16).padStart(2,'0');
+  }).join('').toUpperCase();
+}
+function toSub(rgb){ return rgb.map(v=>1-v/255); }
+function subToRgb(sub){ return sub.map(v=>(1-v)*255); }
+
+function projectToSimplex(v){
+  const n = v.length;
+  const idx = v.map((val,i)=>i).sort((a,b)=>v[b]-v[a]);
+  const u = idx.map(i=>v[i]);
+  let cssum = 0, rho = 0;
+  const css = [];
+  for(let i=0;i<n;i++){
+    cssum += u[i];
+    css.push(cssum);
+    if(u[i] - (css[i]-1)/(i+1) > 0) rho = i;
+  }
+  const theta = (css[rho]-1)/(rho+1);
+  const out = new Array(n);
+  idx.forEach((origI,pos)=>{ out[origI] = Math.max(v[origI]-theta,0); });
+  return out;
+}
+
+function solveMix(targetRgb, paintIdxs){
+  const targetSub = toSub(targetRgb);
+  const paintsSub = paintIdxs.map(i=>toSub(hexToRgb(PALETTE[i].hex)));
+  const n = paintsSub.length;
+  if(n===0) return [];
+  let w = new Array(n).fill(1/n);
+  const lr = 0.12;
+  for(let it=0; it<500; it++){
+    const mix = [0,0,0];
+    for(let i=0;i<n;i++) for(let c=0;c<3;c++) mix[c]+=w[i]*paintsSub[i][c];
+    const diff = [mix[0]-targetSub[0], mix[1]-targetSub[1], mix[2]-targetSub[2]];
+    const grad = w.map((_,i)=> 2*(diff[0]*paintsSub[i][0]+diff[1]*paintsSub[i][1]+diff[2]*paintsSub[i][2]));
+    w = w.map((wi,i)=> wi - lr*grad[i]);
+    w = projectToSimplex(w);
+  }
+  const mixSub = [0,0,0];
+  for(let i=0;i<n;i++) for(let c=0;c<3;c++) mixSub[c]+=w[i]*paintsSub[i][c];
+  const mixRgb = subToRgb(mixSub);
+  return { weights: w, mixRgb };
+}
+
+/* ---------- rendering ---------- */
+let currentTarget = null;
+
+function render(targetRgb){
+  currentTarget = targetRgb;
+  document.getElementById('swatchPair').style.display = 'flex';
+  document.getElementById('targetDisc').style.background = rgbToHex(targetRgb);
+  document.getElementById('targetHex').textContent = rgbToHex(targetRgb);
+  document.getElementById('ticketMeta').textContent = rgbToHex(targetRgb);
+
+  const idxs = PALETTE.map((_,i)=>i).filter(i=>active.has(i));
+  const listEl = document.getElementById('recipeList');
+  const partsEl = document.getElementById('partsLine');
+
+  if(idxs.length===0){
+    listEl.innerHTML = '<div class="recipe-empty">Select at least one color you have on hand.</div>';
+    document.getElementById('mixDisc').style.background = '#ffffff';
+    document.getElementById('mixHex').textContent = '—';
+    document.getElementById('matchPct').textContent = '—';
+    partsEl.style.display = 'none';
+    return;
+  }
+
+  const { weights, mixRgb } = solveMix(targetRgb, idxs);
+
+  document.getElementById('mixDisc').style.background = rgbToHex(mixRgb);
+  document.getElementById('mixHex').textContent = rgbToHex(mixRgb);
+
+  const dist = Math.sqrt(
+    Math.pow(targetRgb[0]-mixRgb[0],2)+
+    Math.pow(targetRgb[1]-mixRgb[1],2)+
+    Math.pow(targetRgb[2]-mixRgb[2],2)
+  );
+  const matchPct = Math.max(0, 100 - (dist/4.41)); // 441 ~= max possible dist
+  document.getElementById('matchPct').textContent = Math.round(matchPct)+'%';
+
+  const entries = idxs.map((paintIdx,pos)=>({paintIdx, w:weights[pos]}))
+    .filter(e=>e.w >= 0.02)
+    .sort((a,b)=>b.w-a.w);
+
+  const total = entries.reduce((s,e)=>s+e.w,0) || 1;
+  entries.forEach(e=> e.w = e.w/total);
+
+  if(entries.length===0){
+    listEl.innerHTML = '<div class="recipe-empty">No usable mix — try enabling more colors.</div>';
+    partsEl.style.display = 'none';
+    return;
+  }
+
+  listEl.innerHTML = entries.map(e=>{
+    const p = PALETTE[e.paintIdx];
+    const pct = Math.round(e.w*100);
+    return `<div class="row">
+      <div class="row-label"><span class="name">${p.name}</span><span class="pct">${pct}%</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%; background:${p.hex};"></div></div>
+    </div>`;
+  }).join('');
+
+  const minW = Math.min(...entries.map(e=>e.w));
+  const parts = entries.map(e=>{
+    let p = e.w/minW;
+    p = Math.round(p*2)/2;
+    return p;
+  });
+  partsEl.style.display = 'block';
+  partsEl.innerHTML = 'As parts — ' + entries.map((e,i)=>`<b>${parts[i]} ${PALETTE[e.paintIdx].name}</b>`).join(' : ');
+}
+
+/* ---------- manual hex picker ---------- */
+const hexPick = document.getElementById('hexPick');
+const hexText = document.getElementById('hexText');
+hexPick.addEventListener('input', ()=>{
+  hexText.value = hexPick.value.toUpperCase();
+  render(hexToRgb(hexPick.value));
+});
+hexText.addEventListener('change', ()=>{
+  let v = hexText.value.trim();
+  if(!v.startsWith('#')) v = '#'+v;
+  if(/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(v)){
+    hexPick.value = v.length===4 ? '#'+v[1]+v[1]+v[2]+v[2]+v[3]+v[3] : v;
+    hexText.value = v.toUpperCase();
+    render(hexToRgb(v));
+  }
+});
+
+/* ---------- image upload + sampling ---------- */
+const fileInput = document.getElementById('fileInput');
+const fileInputDrop = document.getElementById('fileInputDrop');
+const drop = document.getElementById('drop');
+const dropEmptyWrap = document.getElementById('dropEmptyWrap');
+const canvas = document.getElementById('img');
+const ctx = canvas.getContext('2d', { willReadFrequently:true });
+const crosshair = document.getElementById('crosshair');
+
+fileInput.addEventListener('change', e=>{
+  if(e.target.files && e.target.files[0]) loadImage(e.target.files[0]);
+});
+fileInputDrop.addEventListener('change', e=>{
+  if(e.target.files && e.target.files[0]) loadImage(e.target.files[0]);
+});
+drop.addEventListener('dragover', e=>{ e.preventDefault(); });
+drop.addEventListener('drop', e=>{
+  e.preventDefault();
+  if(e.dataTransfer.files && e.dataTransfer.files[0]) loadImage(e.dataTransfer.files[0]);
+});
+
+function loadImage(file){
+  if(!file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = evt=>{
+    const im = new Image();
+    im.onload = ()=>{
+      const maxW = drop.clientWidth - 28;
+      const scale = Math.min(1, maxW/im.width);
+      canvas.width = im.width*scale;
+      canvas.height = im.height*scale;
+      ctx.drawImage(im,0,0,canvas.width,canvas.height);
+      canvas.style.display = 'block';
+      dropEmptyWrap.style.display = 'none';
+      drop.classList.add('has-image');
+    };
+    im.src = evt.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+canvas.addEventListener('click', e=>{
+  const rect = canvas.getBoundingClientRect();
+  const x = Math.round((e.clientX-rect.left) * (canvas.width/rect.width));
+  const y = Math.round((e.clientY-rect.top) * (canvas.height/rect.height));
+  const data = ctx.getImageData(x,y,1,1).data;
+  const rgb = [data[0],data[1],data[2]];
+  crosshair.style.display = 'block';
+  crosshair.style.left = (e.clientX-rect.left)+'px';
+  crosshair.style.top = (e.clientY-rect.top)+'px';
+  hexPick.value = rgbToHex(rgb);
+  hexText.value = rgbToHex(rgb);
+  render(rgb);
+});
+</script>
+</body>
+</html>
